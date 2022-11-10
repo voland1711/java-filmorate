@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -29,30 +31,35 @@ public class UserService {
     // Проверка на существование электронной почты в списке зарегистрированных пользователей
     private boolean checkingExistEmail(User user) {
         for (User tempUser : users.values()) {
-            if (tempUser.getEmail().equals(user.getEmail())) {
-                return true;
-            }
+            return Objects.equals(tempUser.getEmail(), user.getEmail());
         }
         return false;
     }
 
-    private User userValidation (User user) {
-        if (user.getLogin() == null || user.getLogin().contains(" ") || user.getLogin().isEmpty()) {
+    private void userValidation(User user) {
+        if (StringUtils.isBlank(user.getLogin()) && StringUtils.isEmpty(user.getLogin())) {
             throw new ValidationException("Логин не должен быть пустым/содержать пробелы");
         }
 
-        if (user.getBirthday().isAfter(LocalDateTime.now().toLocalDate())) {
-            throw new ValidationException("Дата рождения не может быть в будущем");
+        if (StringUtils.contains(user.getLogin(), " ")) {
+            throw new ValidationException("Логин не должен содержать пробелы");
         }
 
-        if (checkingExistEmail(user)){
-            throw new ValidationException("Пользователь с указанной электронной почтой уже зарегистрирован");
+        if (user.getBirthday() == null) {
+            throw new ValidationException("Дата рождения не может быть null или отсуствовать");
+        }
+        if (user.getBirthday().isAfter(LocalDateTime.now().toLocalDate())) {
+            throw new ValidationException("Дата рождения не может быть в будущем");
         }
 
         if (!EmailValidator.getInstance().isValid(user.getEmail())) {
             throw new ValidationException("Адрес электронной почты не соответствует стандартному формату");
         }
-        return user;
+
+        if (checkingExistEmail(user)) {
+            throw new ValidationException("Пользователь с указанной электронной почтой уже зарегистрирован");
+        }
+
     }
 
     public User createUser(User user) {

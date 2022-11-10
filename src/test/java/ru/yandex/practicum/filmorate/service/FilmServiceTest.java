@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class FilmServiceTest {
 
     @Test
-    @DisplayName("1) Добавление объекта Film: Название фильма пустое")
+    @DisplayName("Добавление объекта Film: Название фильма пустое")
     void createFilmWithNameEmptyTest() {
         Film film = new Film();
         film.setName("");
@@ -33,7 +33,7 @@ class FilmServiceTest {
     }
 
     @Test
-    @DisplayName("2) Добавление объекта Film: Описание фильма более 200 символов")
+    @DisplayName("Добавление объекта Film: Описание фильма более 200 символов")
     void createFilmDescriptionIsLongTest() {
         Film film = new Film();
         film.setName("Friday");
@@ -54,7 +54,7 @@ class FilmServiceTest {
     }
 
     @Test
-    @DisplayName("3) Добавление объекта Film: Продолжительность фильма не положительное число")
+    @DisplayName("Добавление объекта Film: Продолжительность фильма не положительное число")
     void createFilmLengthIsNegativeTest() {
         Film film = new Film();
         film.setName("Name");
@@ -73,7 +73,7 @@ class FilmServiceTest {
     }
 
     @Test
-    @DisplayName("4) Добавление объекта Film: Дата релиза — ранее 28 декабря 1895 года")
+    @DisplayName("Добавление объекта Film: Дата релиза — ранее 28 декабря 1895 года")
     void createFilmReleaseDateInPastTest() {
         Film film = new Film();
         film.setName("Name");
@@ -92,7 +92,7 @@ class FilmServiceTest {
     }
 
     @Test
-    @DisplayName("5) Добавление объекта Film: Данные корректны")
+    @DisplayName("Добавление объекта Film: Данные корректны")
     void createFilmTest() {
         Film film = new Film();
         film.setName("Name");
@@ -111,7 +111,82 @@ class FilmServiceTest {
     }
 
     @Test
-    @DisplayName("6) Проверка обновления объекта Film в коллекции")
+    @DisplayName("Добавление объекта Film: название фильма имеет значение null")
+    void createFilmNameIsNullTest() {
+        Film film = new Film();
+        film.setName(null);
+        film.setDescription("Description");
+        film.setReleaseDate(LocalDate.of(1895, 12, 28));
+        film.setDuration(100);
+        FilmService filmService = new FilmService();
+        assertEquals(0, filmService.findAll().size());
+        try {
+            filmService.createFilm(film);
+        } catch (ValidationException e) {
+            System.out.println("Ошибка при валидации: название фильма не может быть null");
+        }
+        assertEquals(0, filmService.findAll().size(),
+                "Фильм, не прошедший валидацию, добавлен в коллекцию");
+    }
+
+    @Test
+    @DisplayName("Добавление объекта Film: Описание фильма имеет значение null")
+    void createFilmDescriptionIsNullTest() {
+        Film film = new Film();
+        film.setName("Name");
+        film.setDescription(null);
+        film.setReleaseDate(LocalDate.of(1895, 12, 28));
+        film.setDuration(100);
+        FilmService filmService = new FilmService();
+        assertEquals(0, filmService.findAll().size());
+        try {
+            filmService.createFilm(film);
+        } catch (ValidationException e) {
+            System.out.println("Ошибка при валидации: Описание фильма не может быть null");
+        }
+        assertEquals(0, filmService.findAll().size(),
+                "Фильм, не прошедший валидацию, добавлен в коллекцию");
+    }
+
+    @Test
+    @DisplayName("Добавление объекта Film: Продолжительность фильма не заполнена")
+    void createFilmDurationIsNullTest() {
+        Film film = new Film();
+        film.setName("Name");
+        film.setDescription("Description");
+        film.setReleaseDate(LocalDate.of(1895, 12, 28));
+        FilmService filmService = new FilmService();
+        assertEquals(0, filmService.findAll().size());
+        try {
+            filmService.createFilm(film);
+        } catch (ValidationException e) {
+            System.out.println("Ошибка при валидации: Продолжительность фильма не сооответствует требования");
+        }
+        assertEquals(0, filmService.findAll().size(),
+                "Фильм, не прошедший валидацию, добавлен в коллекцию");
+    }
+
+    @Test
+    @DisplayName("Добавление объекта Film: Дата релиза имеет значение null")
+    void createFilmReleaseDateIsNullTest() {
+        Film film = new Film();
+        film.setName("Name");
+        film.setDescription("Description");
+        film.setReleaseDate(null);
+        film.setDuration(100);
+        FilmService filmService = new FilmService();
+        assertEquals(0, filmService.findAll().size());
+        try {
+            filmService.createFilm(film);
+        } catch (ValidationException e) {
+            System.out.println("Ошибка при валидации: Дата релиза фильма не может быть null");
+        }
+        assertEquals(0, filmService.findAll().size(),
+                "Фильм, не прошедший валидацию, добавлен в коллекцию");
+    }
+
+    @Test
+    @DisplayName("Проверка обновления объекта Film в коллекции")
     void updateFilmTest() {
         Film film = new Film();
         film.setName("Name");
@@ -143,7 +218,7 @@ class FilmServiceTest {
     }
 
     @Test
-    @DisplayName("7) Проверка обновления неизвестного фильма")
+    @DisplayName("Проверка обновления неизвестного фильма")
     void updateUnknownFilmTest() {
         Film film = new Film();
         film.setName("Name");
@@ -178,7 +253,7 @@ class FilmServiceTest {
     }
 
     @Test
-    @DisplayName("8) Проверка обновления фильма c пустым названием")
+    @DisplayName("Проверка обновления фильма c пустым названием")
     void updateFilmWithNameEmptyTest() {
         Film film = new Film();
         film.setName("Name");
@@ -213,7 +288,7 @@ class FilmServiceTest {
     }
 
     @Test
-    @DisplayName("9) Проверка обновления фильма с описанием более 200 символов")
+    @DisplayName("Проверка обновления фильма с описанием более 200 символов")
     void updateFilmDescriptionIsLongTest() {
         Film film = new Film();
         film.setName("Name");
@@ -250,7 +325,7 @@ class FilmServiceTest {
     }
 
     @Test
-    @DisplayName("10) Проверка обновления фильма с отрицательной продолжительностю")
+    @DisplayName("Проверка обновления фильма с отрицательной продолжительностю")
     void updateFilmLengthIsNegativeTest() {
         Film film = new Film();
         film.setName("Name");
@@ -285,7 +360,7 @@ class FilmServiceTest {
     }
 
     @Test
-    @DisplayName("11) Добавление объекта Film: Дата релиза — ранее 28 декабря 1895 года")
+    @DisplayName("Проверка обновления объекта Film: Дата релиза — ранее 28 декабря 1895 года")
     void updateFilmReleaseDateInPastTest() {
         Film film = new Film();
         film.setName("Name");

@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class UserServiceTest {
 
     @Test
-    @DisplayName("1) Добавление объекта User: Логин пустой")
+    @DisplayName("Добавление объекта User: Логин пустой")
     void createUserWithLoginEmptyTest() {
         User user = new User();
         user.setId(1);
@@ -34,7 +34,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("2) Добавление объекта User: Логин содержит пробел")
+    @DisplayName("Добавление объекта User: Логин содержит пробел")
     void createUserLoginContainsSpaceTest() {
         User user = new User();
         user.setId(1);
@@ -54,7 +54,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("3) Добавление объекта User: Дата рождения в будущем")
+    @DisplayName("Добавление объекта User: Дата рождения в будущем")
     void createUserBirthdateInFutureTest() {
         User user = new User();
         user.setId(1);
@@ -74,7 +74,46 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("4) Добавление объекта User: Неправильный E-mail адрес")
+    @DisplayName("Добавление объекта User: Дата рождения имеет значение null")
+    void createUserBirthdateIsNullTest() {
+        User user = new User();
+        user.setId(1);
+        user.setName("Nick Name");
+        user.setLogin("dolore");
+        user.setEmail("mail@mail.ru");
+        user.setBirthday(null);
+        UserService userService = new UserService();
+        assertEquals(0, userService.findAll().size());
+        try {
+            userService.createUser(user);
+        } catch (ValidationException e) {
+            System.out.println("Ошибка валидации: Дата рождения имеет значение null");
+        }
+        assertEquals(0, userService.findAll().size(),
+                "Добавлен пользователь, у которого дата рождения имеет значение null");
+    }
+
+    @Test
+    @DisplayName("Добавление объекта User: Дата рождения отсутствует")
+    void createUserBirthdateIsEmptyTest() {
+        User user = new User();
+        user.setId(1);
+        user.setName("Nick Name");
+        user.setLogin("dolore");
+        user.setEmail("mail@mail.ru");
+        UserService userService = new UserService();
+        assertEquals(0, userService.findAll().size());
+        try {
+            userService.createUser(user);
+        } catch (ValidationException e) {
+            System.out.println("Ошибка валидации: Дата рождения отсутствует");
+        }
+        assertEquals(0, userService.findAll().size(),
+                "Добавлен пользователь, у которого дата рождения отсутствует");
+    }
+
+    @Test
+    @DisplayName("Добавление объекта User: E-mail адрес неправильный")
     void createUserIncorrectEmailTest() {
         User user = new User();
         user.setId(1);
@@ -94,7 +133,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("5) Добавление объекта User: E-mail адрес не заполнен")
+    @DisplayName("Добавление объекта User: E-mail адрес не заполнен")
     void createUserEmailEmptyTest() {
         User user = new User();
         user.setId(1);
@@ -112,7 +151,26 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("6) Добавление объекта User: Поле Name не заполнено")
+    @DisplayName("Добавление объекта User: E-mail адрес имеет значение null")
+    void createUserEmailNullTest() {
+        User user = new User();
+        user.setId(1);
+        user.setName("Nick Name");
+        user.setLogin("dolore");
+        user.setEmail(null);
+        user.setBirthday(LocalDate.of(1946, 8, 20));
+        UserService userService = new UserService();
+        try {
+            userService.createUser(user);
+        } catch (ValidationException e) {
+            System.out.println("Ошибка валидации: E-mail адрес имеет значение null");
+        }
+        assertEquals(0, userService.findAll().size(),
+                "Добавлен пользователь у которого, E-mail адрес имеет значение null");
+    }
+
+    @Test
+    @DisplayName("Добавление объекта User: Поле Name не заполнено")
     void createUserWithoutNameTest() {
         User user = new User();
         user.setId(1);
@@ -131,7 +189,40 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("7) Проверка обновления пользователя User в коллекции")
+    @DisplayName("Добавление объекта User: E-mail уже пристуствует в коллекции")
+    void createUserEmailExistInCollectionTest() {
+        User user = new User();
+        user.setId(1);
+        user.setLogin("dolore");
+        user.setEmail("mail@mail.ru");
+        user.setBirthday(LocalDate.of(1946, 8, 20));
+        UserService userService = new UserService();
+        userService.createUser(user);
+        // Проверяем что пользователь добавлен, и в поле имя заполнено логином
+        assertEquals("dolore", userService.findAll().iterator().next().getName(),
+                "Пользователь не добавлен в коллекцию");
+        assertEquals(1, userService.findAll().size(),
+                "Пользователь не добавлен в коллекцию");
+        User tempUser = new User();
+        tempUser.setId(1);
+        tempUser.setLogin("doloreUpdate");
+        tempUser.setName("user update");
+        tempUser.setEmail("mail@mail.ru");
+        tempUser.setBirthday(LocalDate.of(1986, 11, 17));
+        try {
+            userService.createUser(tempUser);
+        } catch (ValidationException e) {
+            System.out.println("Ошибка валидации: пользователь с указанным E-mail адресом уже зарегистрирован");
+        }
+        assertEquals(1, userService.findAll().size(),
+                "Ошибка добавления в коллекцию");
+        assertEquals("dolore", userService.findAll().iterator().next().getName(),
+                "Добавлен пользователь с уже имеющимся E-mail адресом");
+
+    }
+
+    @Test
+    @DisplayName("Проверка обновления пользователя User в коллекции")
     void updateUserTest() {
         User user = new User();
         user.setId(1);
@@ -158,7 +249,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("8) Проверка обновления неизвестного пользователя User в коллекции")
+    @DisplayName("Проверка обновления неизвестного пользователя User в коллекции")
     void updateUnknownUserTest() {
         User user = new User();
         user.setId(1);
@@ -188,7 +279,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("9) Обновляем пользователя, логин содержит пробелы")
+    @DisplayName("Обновляем пользователя, логин содержит пробелы")
     void updateUserContainsSpaceTest() {
         User user = new User();
         user.setId(1);
@@ -216,7 +307,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("10) Обновляем пользователя, e-mail отсутствует")
+    @DisplayName("Обновляем пользователя, e-mail отсутствует")
     void updateUserEmailEmptyTest() {
         User user = new User();
         user.setId(1);
@@ -244,7 +335,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("11) Обновляем пользователя, e-mail не соотвествует стандарту")
+    @DisplayName("Обновляем пользователя, e-mail не соотвествует стандарту")
     void updateUserIncorrectEmailTest() {
         User user = new User();
         user.setId(1);
@@ -272,7 +363,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("12) Обновляем пользователя, дата рождения указана в будущем")
+    @DisplayName("Обновляем пользователя, дата рождения указана в будущем")
     void updateUserBirthdateInFutureTest() {
         User user = new User();
         user.setId(1);
