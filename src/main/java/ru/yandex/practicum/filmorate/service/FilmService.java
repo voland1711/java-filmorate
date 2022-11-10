@@ -26,7 +26,7 @@ public class FilmService {
     }
 
     private void filmValidation(Film film) {
-        if (StringUtils.isBlank(film.getName()) && StringUtils.isEmpty(film.getName())) {
+        if (StringUtils.isBlank(film.getName())) {
             throw new ValidationException("Название фильма не может быть пустым");
         }
         if (StringUtils.isBlank(film.getDescription()) && StringUtils.isEmpty(film.getDescription())) {

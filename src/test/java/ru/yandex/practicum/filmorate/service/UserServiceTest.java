@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,11 +26,9 @@ class UserServiceTest {
         user.setBirthday(LocalDate.of(1946, 8, 20));
         UserService userService = new UserService();
         assertEquals(0, userService.findAll().size());
-        try {
+        Assertions.assertThrows(ValidationException.class, () -> {
             userService.createUser(user);
-        } catch (ValidationException e) {
-            System.out.println("Ошибка валидации: у пользователя отсуствует логин");
-        }
+        });
         assertEquals(0, userService.findAll().size(), "Пользователь был добавлен, с пустым логином");
     }
 
@@ -44,11 +43,9 @@ class UserServiceTest {
         user.setBirthday(LocalDate.of(1946, 8, 20));
         UserService userService = new UserService();
         assertEquals(0, userService.findAll().size());
-        try {
+        Assertions.assertThrows(ValidationException.class, () -> {
             userService.createUser(user);
-        } catch (ValidationException e) {
-            System.out.println("Ошибка валидации: логин пользователя содержит пробелы");
-        }
+        });
         assertEquals(0, userService.findAll().size(),
                 "Пользователь был добавлен, при наличии пробела в логине");
     }
@@ -64,11 +61,9 @@ class UserServiceTest {
         user.setBirthday(LocalDate.of(2046, 8, 20));
         UserService userService = new UserService();
         assertEquals(0, userService.findAll().size());
-        try {
+        Assertions.assertThrows(ValidationException.class, () -> {
             userService.createUser(user);
-        } catch (ValidationException e) {
-            System.out.println("Ошибка валидации: Дата рождения в будущем");
-        }
+        });
         assertEquals(0, userService.findAll().size(),
                 "Добавлен пользователь, с датой рождения в будущем");
     }
@@ -84,11 +79,9 @@ class UserServiceTest {
         user.setBirthday(null);
         UserService userService = new UserService();
         assertEquals(0, userService.findAll().size());
-        try {
+        Assertions.assertThrows(ValidationException.class, () -> {
             userService.createUser(user);
-        } catch (ValidationException e) {
-            System.out.println("Ошибка валидации: Дата рождения имеет значение null");
-        }
+        });
         assertEquals(0, userService.findAll().size(),
                 "Добавлен пользователь, у которого дата рождения имеет значение null");
     }
@@ -103,11 +96,9 @@ class UserServiceTest {
         user.setEmail("mail@mail.ru");
         UserService userService = new UserService();
         assertEquals(0, userService.findAll().size());
-        try {
+        Assertions.assertThrows(ValidationException.class, () -> {
             userService.createUser(user);
-        } catch (ValidationException e) {
-            System.out.println("Ошибка валидации: Дата рождения отсутствует");
-        }
+        });
         assertEquals(0, userService.findAll().size(),
                 "Добавлен пользователь, у которого дата рождения отсутствует");
     }
@@ -123,11 +114,9 @@ class UserServiceTest {
         user.setBirthday(LocalDate.of(1946, 8, 20));
         UserService userService = new UserService();
         assertEquals(0, userService.findAll().size());
-        try {
+        Assertions.assertThrows(ValidationException.class, () -> {
             userService.createUser(user);
-        } catch (ValidationException e) {
-            System.out.println("Ошибка валидации: Неправильный E-mail адрес");
-        }
+        });
         assertEquals(0, userService.findAll().size(),
                 "Добавлен пользователь с неправильным адресом электронной почты");
     }
@@ -141,11 +130,9 @@ class UserServiceTest {
         user.setLogin("dolore");
         user.setBirthday(LocalDate.of(1946, 8, 20));
         UserService userService = new UserService();
-        try {
+        Assertions.assertThrows(ValidationException.class, () -> {
             userService.createUser(user);
-        } catch (ValidationException e) {
-            System.out.println("Ошибка валидации: E-mail адрес не заполнен");
-        }
+        });
         assertEquals(0, userService.findAll().size(),
                 "Добавлен пользователь с неправильным адресом электронной почты");
     }
@@ -160,11 +147,9 @@ class UserServiceTest {
         user.setEmail(null);
         user.setBirthday(LocalDate.of(1946, 8, 20));
         UserService userService = new UserService();
-        try {
+        Assertions.assertThrows(ValidationException.class, () -> {
             userService.createUser(user);
-        } catch (ValidationException e) {
-            System.out.println("Ошибка валидации: E-mail адрес имеет значение null");
-        }
+        });
         assertEquals(0, userService.findAll().size(),
                 "Добавлен пользователь у которого, E-mail адрес имеет значение null");
     }
@@ -209,11 +194,9 @@ class UserServiceTest {
         tempUser.setName("user update");
         tempUser.setEmail("mail@mail.ru");
         tempUser.setBirthday(LocalDate.of(1986, 11, 17));
-        try {
+        Assertions.assertThrows(ValidationException.class, () -> {
             userService.createUser(tempUser);
-        } catch (ValidationException e) {
-            System.out.println("Ошибка валидации: пользователь с указанным E-mail адресом уже зарегистрирован");
-        }
+        });
         assertEquals(1, userService.findAll().size(),
                 "Ошибка добавления в коллекцию");
         assertEquals("dolore", userService.findAll().iterator().next().getName(),
@@ -267,11 +250,9 @@ class UserServiceTest {
         unknownUser.setName("user update");
         unknownUser.setEmail("mail@yandex.ru");
         unknownUser.setBirthday(LocalDate.of(1986, 11, 17));
-        try {
+        Assertions.assertThrows(ValidationException.class, () -> {
             userService.updateUser(unknownUser);
-        } catch (ValidationException e) {
-            System.out.println("Необходимый пользователь для обновления отсутствует в коллекции");
-        }
+        });
         assertEquals(1, userService.findAll().size(),
                 "В коллекции должен быть только один пользователь");
         assertTrue(userService.findAll().contains(user),
@@ -297,11 +278,9 @@ class UserServiceTest {
         tempUser.setName("user update");
         tempUser.setEmail("mail@yandex.ru");
         tempUser.setBirthday(LocalDate.of(1986, 11, 17));
-        try {
+        Assertions.assertThrows(ValidationException.class, () -> {
             userService.updateUser(tempUser);
-        } catch (ValidationException e) {
-            System.out.println("Необходимый пользователь для обновления отсутствует в коллекции");
-        }
+        });
         assertTrue(userService.findAll().contains(user),
                 "Ошибочное обновление: некорректные данные полей: логин содержит пробелы");
     }
@@ -325,11 +304,9 @@ class UserServiceTest {
         tempUser.setName("user update");
         tempUser.setEmail("");
         tempUser.setBirthday(LocalDate.of(1986, 11, 17));
-        try {
+        Assertions.assertThrows(ValidationException.class, () -> {
             userService.updateUser(tempUser);
-        } catch (ValidationException e) {
-            System.out.println("Необходимый пользователь для обновления отсутствует в коллекции");
-        }
+        });
         assertTrue(userService.findAll().contains(user),
                 "Ошибочное обновление: некорректные данные полей: e-mail отсутствует");
     }
@@ -353,11 +330,9 @@ class UserServiceTest {
         tempUser.setName("user update");
         tempUser.setEmail("это--неправильный?эмейл@");
         tempUser.setBirthday(LocalDate.of(1986, 11, 17));
-        try {
+        Assertions.assertThrows(ValidationException.class, () -> {
             userService.updateUser(tempUser);
-        } catch (ValidationException e) {
-            System.out.println("Необходимый пользователь для обновления отсутствует в коллекции");
-        }
+        });
         assertTrue(userService.findAll().contains(user),
                 "Ошибочное обновление: некорректные данные полей: e-mail не соотвествует стандарту");
     }
@@ -381,11 +356,9 @@ class UserServiceTest {
         tempUser.setName("user update");
         tempUser.setEmail("new_mail@yandex.ru");
         tempUser.setBirthday(LocalDate.of(2186, 11, 17));
-        try {
+        Assertions.assertThrows(ValidationException.class, () -> {
             userService.updateUser(tempUser);
-        } catch (ValidationException e) {
-            System.out.println("Необходимый пользователь для обновления отсутствует в коллекции");
-        }
+        });
         assertTrue(userService.findAll().contains(user),
                 "Ошибочное обновление: некорректные данные полей: дата рождения указана в будущем");
     }
