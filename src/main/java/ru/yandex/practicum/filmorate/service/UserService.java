@@ -68,16 +68,16 @@ public class UserService {
         } else {
             throw new ValidationException("Пользователь с id = " + userId + " в коллекции не найден");
         }
+        log.info("Пользователь " + userId + " добавил в друзья пользователя " + userFriendId);
         return userStorage.getUserById(userId);
     }
 
     public User deleteFriend(long userId, long userFriendId) {
-        System.out.println("userId" + userId);
-        System.out.println("userFriendId" + userFriendId);
         if (userStorage.existUser(userId) && userStorage.existUser(userFriendId)) {
             userStorage.getUserById(userId).getListFriendId().remove(userFriendId);
             userStorage.getUserById(userFriendId).getListFriendId().remove(userId);
         }
+        log.info("Пользователь " + userId + " удалил из друзей пользователя " + userFriendId);
         return userStorage.getUserById(userId);
     }
 

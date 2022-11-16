@@ -7,7 +7,6 @@ public class ObjectNotFoundException extends RuntimeException {
 
     public ObjectNotFoundException(String message) {
         super(message);
-        log.warn("Объект не найден: " + message);
     }
 
 }

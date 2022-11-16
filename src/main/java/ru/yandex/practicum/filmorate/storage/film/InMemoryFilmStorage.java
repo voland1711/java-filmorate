@@ -66,7 +66,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         if (StringUtils.isBlank(film.getName())) {
             throw new ValidationException("Название фильма не может быть пустым");
         }
-        if (StringUtils.isBlank(film.getDescription()) && StringUtils.isEmpty(film.getDescription())) {
+        if (StringUtils.isBlank(film.getDescription())) {
             throw new ValidationException("Описание фильма не может быть пустым, иметь значение null");
         }
         if (film.getDescription().length() > 200) {
@@ -80,7 +80,6 @@ public class InMemoryFilmStorage implements FilmStorage {
             throw new ValidationException("Дата релиза — раньше 28 декабря 1895 года");
         }
 
-        System.out.println("film.getDuration() = " + film.getDuration());
         if (film.getDuration() <= 0) {
             throw new ValidationException("Продолжительность фильма должна быть положительной");
         }
