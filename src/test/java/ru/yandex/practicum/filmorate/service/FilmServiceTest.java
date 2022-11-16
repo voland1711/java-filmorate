@@ -4,8 +4,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
 
@@ -23,12 +26,10 @@ class FilmServiceTest {
         film.setDescription("Description");
         film.setReleaseDate(LocalDate.of(1967, 3, 25));
         film.setDuration(100);
-        FilmService filmService = new FilmService();
-        assertEquals(0, filmService.findAll().size());
-        Assertions.assertThrows(ValidationException.class, () -> {
-            filmService.createFilm(film);
-        });
-        assertEquals(0, filmService.findAll().size(), "В коллекцию добавлен фильм без названия");
+        FilmService filmService = new FilmService(new InMemoryFilmStorage(), new InMemoryUserStorage());
+        assertEquals(0, filmService.findAllFilms().size());
+        Assertions.assertThrows(ValidationException.class, () -> filmService.createFilm(film));
+        assertEquals(0, filmService.findAllFilms().size(), "В коллекцию добавлен фильм без названия");
     }
 
     @Test
@@ -36,15 +37,16 @@ class FilmServiceTest {
     void createFilmDescriptionIsLongTest() {
         Film film = new Film();
         film.setName("Friday");
-        film.setDescription("DescriptionDescri ptionDescriptionDescriptionDesc riptionDescriptionDescriptionDescripti" + "onptionDescriptionDescriptionDesc ription DescriptionD escription Description ptionDescriptionDescпр" + "riptionDesc ription DescriptionD escription Description");
+        film.setDescription("DescriptionDescri ptionDescriptionDescriptionDesc riptionDescriptionDescriptionDescripti" +
+                "onptionDescriptionDescriptionDesc ription DescriptionD escription Description ptionDescriptionDescпр" +
+                "riptionDesc ription DescriptionD escription Description");
         film.setReleaseDate(LocalDate.of(1967, 3, 25));
         film.setDuration(100);
-        FilmService filmService = new FilmService();
-        assertEquals(0, filmService.findAll().size());
-        Assertions.assertThrows(ValidationException.class, () -> {
-            filmService.createFilm(film);
-        });
-        assertEquals(0, filmService.findAll().size(), "В коллекцию добавлен фильм с длиноя описания" + " более 200 символов");
+        FilmService filmService = new FilmService(new InMemoryFilmStorage(), new InMemoryUserStorage());
+        assertEquals(0, filmService.findAllFilms().size());
+        Assertions.assertThrows(ValidationException.class, () -> filmService.createFilm(film));
+        assertEquals(0, filmService.findAllFilms().size(), "В коллекцию добавлен фильм с длиноя описания" +
+                " более 200 символов");
     }
 
     @Test
@@ -55,12 +57,11 @@ class FilmServiceTest {
         film.setDescription("Description");
         film.setReleaseDate(LocalDate.of(1967, 3, 25));
         film.setDuration(0);
-        FilmService filmService = new FilmService();
-        assertEquals(0, filmService.findAll().size());
-        Assertions.assertThrows(ValidationException.class, () -> {
-            filmService.createFilm(film);
-        });
-        assertEquals(0, filmService.findAll().size(), "В коллекцию добавлен фильм, у которого нулевая продолжительность");
+        FilmService filmService = new FilmService(new InMemoryFilmStorage(), new InMemoryUserStorage());
+        assertEquals(0, filmService.findAllFilms().size());
+        Assertions.assertThrows(ValidationException.class, () -> filmService.createFilm(film));
+        assertEquals(0, filmService.findAllFilms().size(),
+                "В коллекцию добавлен фильм, у которого нулевая продолжительность");
     }
 
     @Test
@@ -71,12 +72,11 @@ class FilmServiceTest {
         film.setDescription("Description");
         film.setReleaseDate(LocalDate.of(1895, 1, 1));
         film.setDuration(100);
-        FilmService filmService = new FilmService();
-        assertEquals(0, filmService.findAll().size());
-        Assertions.assertThrows(ValidationException.class, () -> {
-            filmService.createFilm(film);
-        });
-        assertEquals(0, filmService.findAll().size(), "Добавлен фильм с датой релиза — ранее 28 декабря 1895 года");
+        FilmService filmService = new FilmService(new InMemoryFilmStorage(), new InMemoryUserStorage());
+        assertEquals(0, filmService.findAllFilms().size());
+        Assertions.assertThrows(ValidationException.class, () -> filmService.createFilm(film));
+        assertEquals(0, filmService.findAllFilms().size(),
+                "Добавлен фильм с датой релиза — ранее 28 декабря 1895 года");
     }
 
     @Test
@@ -87,26 +87,26 @@ class FilmServiceTest {
         film.setDescription("Description");
         film.setReleaseDate(LocalDate.of(1895, 12, 28));
         film.setDuration(100);
-        FilmService filmService = new FilmService();
-        assertEquals(0, filmService.findAll().size());
+        FilmService filmService = new FilmService(new InMemoryFilmStorage(), new InMemoryUserStorage());
+        assertEquals(0, filmService.findAllFilms().size());
         filmService.createFilm(film);
-        assertEquals(1, filmService.findAll().size(), "Фильм с валидными даннными не добавлен в коллекцию");
+        assertEquals(1, filmService.findAllFilms().size(),
+                "Фильм с валидными даннными не добавлен в коллекцию");
     }
 
     @Test
-    @DisplayName("Добавление объекта Film: название фильма имеет значение null")
+    @DisplayName("Добавление объекта Film: Название фильма имеет значение null")
     void createFilmNameIsNullTest() {
         Film film = new Film();
         film.setName(null);
         film.setDescription("Description");
         film.setReleaseDate(LocalDate.of(1895, 12, 28));
         film.setDuration(100);
-        FilmService filmService = new FilmService();
-        assertEquals(0, filmService.findAll().size());
-        Assertions.assertThrows(ValidationException.class, () -> {
-            filmService.createFilm(film);
-        });
-        assertEquals(0, filmService.findAll().size(), "Фильм, не прошедший валидацию, добавлен в коллекцию");
+        FilmService filmService = new FilmService(new InMemoryFilmStorage(), new InMemoryUserStorage());
+        assertEquals(0, filmService.findAllFilms().size());
+        Assertions.assertThrows(ValidationException.class, () -> filmService.createFilm(film));
+        assertEquals(0, filmService.findAllFilms().size(),
+                "Фильм, не прошедший валидацию, добавлен в коллекцию");
     }
 
     @Test
@@ -117,12 +117,11 @@ class FilmServiceTest {
         film.setDescription(null);
         film.setReleaseDate(LocalDate.of(1895, 12, 28));
         film.setDuration(100);
-        FilmService filmService = new FilmService();
-        assertEquals(0, filmService.findAll().size());
-        Assertions.assertThrows(ValidationException.class, () -> {
-            filmService.createFilm(film);
-        });
-        assertEquals(0, filmService.findAll().size(), "Фильм, не прошедший валидацию, добавлен в коллекцию");
+        FilmService filmService = new FilmService(new InMemoryFilmStorage(), new InMemoryUserStorage());
+        assertEquals(0, filmService.findAllFilms().size());
+        Assertions.assertThrows(ValidationException.class, () -> filmService.createFilm(film));
+        assertEquals(0, filmService.findAllFilms().size(),
+                "Фильм, не прошедший валидацию, добавлен в коллекцию");
     }
 
     @Test
@@ -132,12 +131,11 @@ class FilmServiceTest {
         film.setName("Name");
         film.setDescription("Description");
         film.setReleaseDate(LocalDate.of(1895, 12, 28));
-        FilmService filmService = new FilmService();
-        assertEquals(0, filmService.findAll().size());
-        Assertions.assertThrows(ValidationException.class, () -> {
-            filmService.createFilm(film);
-        });
-        assertEquals(0, filmService.findAll().size(), "Фильм, не прошедший валидацию, добавлен в коллекцию");
+        FilmService filmService = new FilmService(new InMemoryFilmStorage(), new InMemoryUserStorage());
+        assertEquals(0, filmService.findAllFilms().size());
+        Assertions.assertThrows(ValidationException.class, () -> filmService.createFilm(film));
+        assertEquals(0, filmService.findAllFilms().size(),
+                "Фильм, не прошедший валидацию, добавлен в коллекцию");
     }
 
     @Test
@@ -148,12 +146,11 @@ class FilmServiceTest {
         film.setDescription("Description");
         film.setReleaseDate(null);
         film.setDuration(100);
-        FilmService filmService = new FilmService();
-        assertEquals(0, filmService.findAll().size());
-        Assertions.assertThrows(ValidationException.class, () -> {
-            filmService.createFilm(film);
-        });
-        assertEquals(0, filmService.findAll().size(), "Фильм, не прошедший валидацию, добавлен в коллекцию");
+        FilmService filmService = new FilmService(new InMemoryFilmStorage(), new InMemoryUserStorage());
+        assertEquals(0, filmService.findAllFilms().size());
+        Assertions.assertThrows(ValidationException.class, () -> filmService.createFilm(film));
+        assertEquals(0, filmService.findAllFilms().size(),
+                "Фильм, не прошедший валидацию, добавлен в коллекцию");
     }
 
     @Test
@@ -164,21 +161,22 @@ class FilmServiceTest {
         film.setDescription("Description");
         film.setReleaseDate(LocalDate.of(1895, 12, 28));
         film.setDuration(100);
-        FilmService filmService = new FilmService();
-        assertEquals(0, filmService.findAll().size());
+        FilmService filmService = new FilmService(new InMemoryFilmStorage(), new InMemoryUserStorage());
+        assertEquals(0, filmService.findAllFilms().size());
         filmService.createFilm(film);
-        assertEquals(1, filmService.findAll().size(), "Фильм с валидными данными не добавлен в коллекцию");
+        assertEquals(1, filmService.findAllFilms().size(),
+                "Фильм с валидными данными не добавлен в коллекцию");
 
         // Обновляем поля объекта Film
         Film filmUpdate = new Film();
-        filmUpdate.setId(1);
+        filmUpdate.setId(1L);
         filmUpdate.setName("New-Name");
         filmUpdate.setDescription("New-Description");
         filmUpdate.setReleaseDate(LocalDate.of(2016, 1, 21));
         filmUpdate.setDuration(108);
         filmService.updateFilm(filmUpdate);
-        assertEquals(1, filmService.findAll().size(), "В коллекции должен быть только один фильм");
-        assertTrue(filmService.findAll().contains(filmUpdate), "Фильм не обновлен");
+        assertEquals(1, filmService.findAllFilms().size(), "В коллекции должен быть только один фильм");
+        assertTrue(filmService.findAllFilms().contains(filmUpdate), "Фильм не обновлен");
 
     }
 
@@ -190,23 +188,22 @@ class FilmServiceTest {
         film.setDescription("Description");
         film.setReleaseDate(LocalDate.of(1895, 12, 28));
         film.setDuration(100);
-        FilmService filmService = new FilmService();
-        assertEquals(0, filmService.findAll().size());
+        FilmService filmService = new FilmService(new InMemoryFilmStorage(), new InMemoryUserStorage());
+        assertEquals(0, filmService.findAllFilms().size());
         filmService.createFilm(film);
-        assertEquals(1, filmService.findAll().size(), "Фильм с валидными данными не добавлен в коллекцию");
+        assertEquals(1, filmService.findAllFilms().size(),
+                "Фильм с валидными данными не добавлен в коллекцию");
 
         // Обновляем поля объекта Film
         Film filmUpdate = new Film();
-        filmUpdate.setId(999);
+        filmUpdate.setId(999L);
         filmUpdate.setName("New-Name");
         filmUpdate.setDescription("New-Description");
         filmUpdate.setReleaseDate(LocalDate.of(2016, 1, 21));
         filmUpdate.setDuration(108);
-        Assertions.assertThrows(ValidationException.class, () -> {
-            filmService.updateFilm(filmUpdate);
-        });
-        assertEquals(1, filmService.findAll().size(), "В коллекции должен быть только один фильм");
-        assertTrue(filmService.findAll().contains(film), "Фильм ошибочно обновлен");
+        Assertions.assertThrows(ObjectNotFoundException.class, () -> filmService.updateFilm(filmUpdate));
+        assertEquals(1, filmService.findAllFilms().size(), "В коллекции должен быть только один фильм");
+        assertTrue(filmService.findAllFilms().contains(film), "Фильм ошибочно обновлен");
     }
 
     @Test
@@ -217,23 +214,22 @@ class FilmServiceTest {
         film.setDescription("Description");
         film.setReleaseDate(LocalDate.of(1895, 12, 28));
         film.setDuration(100);
-        FilmService filmService = new FilmService();
-        assertEquals(0, filmService.findAll().size());
+        FilmService filmService = new FilmService(new InMemoryFilmStorage(), new InMemoryUserStorage());
+        assertEquals(0, filmService.findAllFilms().size());
         filmService.createFilm(film);
-        assertEquals(1, filmService.findAll().size(), "Фильм с валидными данными не добавлен в коллекцию");
+        assertEquals(1, filmService.findAllFilms().size(),
+                "Фильм с валидными данными не добавлен в коллекцию");
 
         // Обновляем поля объекта Film
         Film filmUpdate = new Film();
-        filmUpdate.setId(1);
+        filmUpdate.setId(1L);
         filmUpdate.setName("");
         filmUpdate.setDescription("New-Description");
         filmUpdate.setReleaseDate(LocalDate.of(2016, 1, 21));
         filmUpdate.setDuration(108);
-        Assertions.assertThrows(ValidationException.class, () -> {
-            filmService.updateFilm(filmUpdate);
-        });
-        assertEquals(1, filmService.findAll().size(), "В коллекции должен быть только один фильм");
-        assertTrue(filmService.findAll().contains(film), "Фильм ошибочно обновлен");
+        Assertions.assertThrows(ValidationException.class, () -> filmService.updateFilm(filmUpdate));
+        assertEquals(1, filmService.findAllFilms().size(), "В коллекции должен быть только один фильм");
+        assertTrue(filmService.findAllFilms().contains(film), "Фильм ошибочно обновлен");
     }
 
     @Test
@@ -244,23 +240,24 @@ class FilmServiceTest {
         film.setDescription("Description");
         film.setReleaseDate(LocalDate.of(1895, 12, 28));
         film.setDuration(100);
-        FilmService filmService = new FilmService();
-        assertEquals(0, filmService.findAll().size());
+        FilmService filmService = new FilmService(new InMemoryFilmStorage(), new InMemoryUserStorage());
+        assertEquals(0, filmService.findAllFilms().size());
         filmService.createFilm(film);
-        assertEquals(1, filmService.findAll().size(), "Фильм с валидными данными не добавлен в коллекцию");
+        assertEquals(1, filmService.findAllFilms().size(),
+                "Фильм с валидными данными не добавлен в коллекцию");
 
         // Обновляем поля объекта Film
         Film filmUpdate = new Film();
-        filmUpdate.setId(1);
+        filmUpdate.setId(1L);
         filmUpdate.setName("New-Name");
-        filmUpdate.setDescription("DescriptionDescri ptionDescriptionDescriptionDesc riptionDescriptionDescriptionDescripti" + "onptionDescriptionDescriptionDesc ription DescriptionD escription Description ptionDescriptionDescпр" + "riptionDesc ription DescriptionD escription Description");
+        filmUpdate.setDescription("DescriptionDescri ptionDescriptionDescriptionDesc riptionDescriptionDescription" +
+                "Descript ionptionDescriptionDescriptionDesc ription DescriptionD escription Description ptionDescr" +
+                "iptionDescпр" + "riptionDesc ription DescriptionD escription Description");
         filmUpdate.setReleaseDate(LocalDate.of(2016, 1, 21));
         filmUpdate.setDuration(108);
-        Assertions.assertThrows(ValidationException.class, () -> {
-            filmService.updateFilm(filmUpdate);
-        });
-        assertEquals(1, filmService.findAll().size(), "В коллекции должен быть только один фильм");
-        assertTrue(filmService.findAll().contains(film), "Фильм ошибочно обновлен");
+        Assertions.assertThrows(ValidationException.class, () -> filmService.updateFilm(filmUpdate));
+        assertEquals(1, filmService.findAllFilms().size(), "В коллекции должен быть только один фильм");
+        assertTrue(filmService.findAllFilms().contains(film), "Фильм ошибочно обновлен");
     }
 
     @Test
@@ -271,23 +268,22 @@ class FilmServiceTest {
         film.setDescription("Description");
         film.setReleaseDate(LocalDate.of(1895, 12, 28));
         film.setDuration(100);
-        FilmService filmService = new FilmService();
-        assertEquals(0, filmService.findAll().size());
+        FilmService filmService = new FilmService(new InMemoryFilmStorage(), new InMemoryUserStorage());
+        assertEquals(0, filmService.findAllFilms().size());
         filmService.createFilm(film);
-        assertEquals(1, filmService.findAll().size(), "Фильм с валидными данными не добавлен в коллекцию");
+        assertEquals(1, filmService.findAllFilms().size(),
+                "Фильм с валидными данными не добавлен в коллекцию");
 
         // Обновляем поля объекта Film
         Film filmUpdate = new Film();
-        filmUpdate.setId(1);
+        filmUpdate.setId(1L);
         filmUpdate.setName("New Name");
         filmUpdate.setDescription("New Description");
         filmUpdate.setReleaseDate(LocalDate.of(2016, 1, 21));
         filmUpdate.setDuration(-108);
-        Assertions.assertThrows(ValidationException.class, () -> {
-            filmService.updateFilm(filmUpdate);
-        });
-        assertEquals(1, filmService.findAll().size(), "В коллекции должен быть только один фильм");
-        assertTrue(filmService.findAll().contains(film), "Фильм ошибочно обновлен");
+        Assertions.assertThrows(ValidationException.class, () -> filmService.updateFilm(filmUpdate));
+        assertEquals(1, filmService.findAllFilms().size(), "В коллекции должен быть только один фильм");
+        assertTrue(filmService.findAllFilms().contains(film), "Фильм ошибочно обновлен");
     }
 
     @Test
@@ -298,23 +294,22 @@ class FilmServiceTest {
         film.setDescription("Description");
         film.setReleaseDate(LocalDate.of(1895, 12, 28));
         film.setDuration(100);
-        FilmService filmService = new FilmService();
-        assertEquals(0, filmService.findAll().size());
+        FilmService filmService = new FilmService(new InMemoryFilmStorage(), new InMemoryUserStorage());
+        assertEquals(0, filmService.findAllFilms().size());
         filmService.createFilm(film);
-        assertEquals(1, filmService.findAll().size(), "Фильм с валидными данными не добавлен в коллекцию");
+        assertEquals(1, filmService.findAllFilms().size(),
+                "Фильм с валидными данными не добавлен в коллекцию");
 
         // Обновляем поля объекта Film
         Film filmUpdate = new Film();
-        filmUpdate.setId(1);
+        filmUpdate.setId(1L);
         filmUpdate.setName("New Name");
         filmUpdate.setDescription("New-Description");
         filmUpdate.setReleaseDate(LocalDate.of(1885, 1, 21));
         filmUpdate.setDuration(108);
-        Assertions.assertThrows(ValidationException.class, () -> {
-            filmService.updateFilm(filmUpdate);
-        });
-        assertEquals(1, filmService.findAll().size(), "В коллекции должен быть только один фильм");
-        assertTrue(filmService.findAll().contains(film), "Фильм ошибочно обновлен");
+        Assertions.assertThrows(ValidationException.class, () -> filmService.updateFilm(filmUpdate));
+        assertEquals(1, filmService.findAllFilms().size(), "В коллекции должен быть только один фильм");
+        assertTrue(filmService.findAllFilms().contains(film), "Фильм ошибочно обновлен");
     }
 
 }
