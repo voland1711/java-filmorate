@@ -1,26 +1,24 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.dao.FriendsDao;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 
 @Service
 @Slf4j
 public class UserService {
     private final UserStorage userStorage;
+    private final FriendsDao friendsDao;
 
-    @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(@Qualifier UserStorage userStorage, FriendsDao friendsDao) {
         this.userStorage = userStorage;
+        this.friendsDao = friendsDao;
     }
 
     public Collection<User> findAllUsers() {
@@ -35,50 +33,31 @@ public class UserService {
         return userStorage.updateUser(user);
     }
 
-    public User getUserById(long userId) {
-        return userStorage.getUserById(userId);
+    public Optional<User> findUserById(long userId) {
+        return userStorage.findUserById(userId);
     }
 
-    public List<User> getFriends(long userId) {
-        List<User> tempUsers = new ArrayList<>();
+    public Collection<User> getFriends(long userId) {
         userStorage.existUser(userId);
-        userStorage.getUserById(userId).getListFriendId().
-                forEach(friendId -> tempUsers.add(userStorage.getUserById(friendId)));
-        return tempUsers;
+        return friendsDao.getFriends(userId);
     }
 
     public List<User> getCommonFriends(long userId, long otherId) {
-        List<User> tempCommonUsers = new ArrayList<>();
-        if (userStorage.getUserById(userId).getListFriendId().isEmpty() &&
-                userStorage.getUserById(otherId).getListFriendId().isEmpty()) {
-            return Collections.EMPTY_LIST;
-        }
-        for (Long tempUserId : userStorage.getUserById(userId).getListFriendId()) {
-            if (userStorage.getUserById(otherId).getListFriendId().contains(tempUserId)) {
-                tempCommonUsers.add(getUserById(tempUserId));
-            }
-        }
-        return tempCommonUsers;
+        userStorage.existUser(userId);
+        userStorage.existUser(otherId);
+        return friendsDao.getCommonFriends(userId, otherId);
     }
 
-    public User addFriend(long userId, long userFriendId) {
-        if (userStorage.existUser(userId) && userStorage.existUser(userFriendId)) {
-            userStorage.getUserById(userId).getListFriendId().add(userFriendId);
-            userStorage.getUserById(userFriendId).getListFriendId().add(userId);
-        } else {
-            throw new ValidationException("Пользователь с id = " + userId + " в коллекции не найден");
-        }
-        log.info("Пользователь " + userId + " добавил в друзья пользователя " + userFriendId);
-        return userStorage.getUserById(userId);
+    public void addFriend(long userId, long userFriendId) {
+        userStorage.existUser(userId);
+        userStorage.existUser(userFriendId);
+        friendsDao.addFriend(userId, userFriendId);
     }
 
-    public User deleteFriend(long userId, long userFriendId) {
-        if (userStorage.existUser(userId) && userStorage.existUser(userFriendId)) {
-            userStorage.getUserById(userId).getListFriendId().remove(userFriendId);
-            userStorage.getUserById(userFriendId).getListFriendId().remove(userId);
-        }
-        log.info("Пользователь " + userId + " удалил из друзей пользователя " + userFriendId);
-        return userStorage.getUserById(userId);
+    public void deleteFriend(long userId, long userFriendId) {
+        userStorage.existUser(userId);
+        userStorage.existUser(userFriendId);
+        friendsDao.deleteFriend(userId, userFriendId);
     }
 
 }

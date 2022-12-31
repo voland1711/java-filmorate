@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -16,7 +17,6 @@ public class FilmController {
 
     private final FilmService filmService;
 
-    @Autowired
     public FilmController(FilmService filmService) {
         this.filmService = filmService;
     }
@@ -28,7 +28,7 @@ public class FilmController {
     }
 
     @GetMapping
-    public Collection<Film> findAllFilms() {
+    public List<Film> findAllFilms() {
         log.info("Запрос для вывода коллекции фильмов");
         return filmService.findAllFilms();
     }
@@ -40,17 +40,17 @@ public class FilmController {
     }
 
     @GetMapping("/{filmId}")
-    public Film getFilmById(@PathVariable Long filmId) {
+    public Optional<Film> getFilmById(@PathVariable Long filmId) {
         return filmService.getFilmById(filmId);
     }
 
     @PutMapping("/{filmId}/like/{userId}")
-    public Film putFilmLike(@PathVariable Long filmId, @PathVariable Long userId) {
+    public Optional<Film> putFilmLike(@PathVariable Long filmId, @PathVariable Long userId) {
         return filmService.putFilmLike(filmId, userId);
     }
 
     @DeleteMapping("/{filmId}/like/{userId}")
-    public Film deleteFilmLike(@PathVariable Long filmId, @PathVariable Long userId) {
+    public Optional<Film> deleteFilmLike(@PathVariable Long filmId, @PathVariable Long userId) {
         return filmService.deleteFilmLike(filmId, userId);
     }
 
