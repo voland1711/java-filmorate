@@ -69,7 +69,7 @@ class FilmoRateApplicationTests {
     @DisplayName("Добавление объекта User: Предоставлены корректные данные")
     void FindUserByIdTest() {
         long userId = getCountUsers();
-        userStorage.createUser(getUser());
+        userService.createUser(getUser());
         Optional<User> userOptional = userStorage.findUserById(userId);
         Assertions.assertThat(userOptional)
                 .isPresent()
@@ -87,7 +87,7 @@ class FilmoRateApplicationTests {
         User tempUser = getUser();
         tempUser.setId(2L);
         tempUser.setLogin("");
-        assertThatThrownBy(() -> userStorage.createUser(tempUser))
+        assertThatThrownBy(() -> userService.createUser(tempUser))
                 .isInstanceOf(ValidationException.class)
                 .hasMessage("Логин не должен быть пустым/содержать пробелы");
         assertThatExceptionOfType(ObjectNotFoundException.class).
@@ -101,11 +101,11 @@ class FilmoRateApplicationTests {
         User tempUser = getUser();
         tempUser.setId(userId);
         tempUser.setLogin("Login login");
-        assertThatThrownBy(() -> userStorage.createUser(tempUser))
+        assertThatThrownBy(() -> userService.createUser(tempUser))
                 .isInstanceOf(ValidationException.class)
                 .hasMessage("Логин не должен содержать пробелы");
         assertThatExceptionOfType(ObjectNotFoundException.class).
-                isThrownBy(() -> userStorage.findUserById(userId));
+                isThrownBy(() -> userService.findUserById(userId));
     }
 
     @Test
@@ -116,9 +116,9 @@ class FilmoRateApplicationTests {
         tempUser.setId(userId);
         tempUser.setBirthday(LocalDate.of(2046, 8, 20));
         assertThatExceptionOfType(ValidationException.class)
-                .isThrownBy(() -> userStorage.createUser(tempUser));
+                .isThrownBy(() -> userService.createUser(tempUser));
         assertThatExceptionOfType(ObjectNotFoundException.class)
-                .isThrownBy(() -> userStorage.findUserById(userId));
+                .isThrownBy(() -> userService.findUserById(userId));
     }
 
     @Test
@@ -129,9 +129,9 @@ class FilmoRateApplicationTests {
         tempUser.setId(userId);
         tempUser.setBirthday(null);
         assertThatExceptionOfType(ValidationException.class)
-                .isThrownBy(() -> userStorage.createUser(tempUser));
+                .isThrownBy(() -> userService.createUser(tempUser));
         assertThatExceptionOfType(ObjectNotFoundException.class)
-                .isThrownBy(() -> userStorage.findUserById(userId));
+                .isThrownBy(() -> userService.findUserById(userId));
     }
 
     @Test
@@ -145,9 +145,9 @@ class FilmoRateApplicationTests {
                 .email("mail@mail.ru")
                 .build();
         assertThatExceptionOfType(ValidationException.class).
-                isThrownBy(() -> userStorage.createUser(tempUser));
+                isThrownBy(() -> userService.createUser(tempUser));
         assertThatExceptionOfType(ObjectNotFoundException.class).
-                isThrownBy(() -> userStorage.findUserById(userId));
+                isThrownBy(() -> userService.findUserById(userId));
     }
 
     @Test
@@ -158,9 +158,9 @@ class FilmoRateApplicationTests {
         tempUser.setId(userId);
         tempUser.setEmail("mail.ru");
         assertThatExceptionOfType(ValidationException.class).
-                isThrownBy(() -> userStorage.createUser(tempUser));
+                isThrownBy(() -> userService.createUser(tempUser));
         assertThatExceptionOfType(ObjectNotFoundException.class).
-                isThrownBy(() -> userStorage.findUserById(userId));
+                isThrownBy(() -> userService.findUserById(userId));
     }
 
     @Test
@@ -174,7 +174,7 @@ class FilmoRateApplicationTests {
                 .birthday(LocalDate.of(1946, 8, 20))
                 .build();
         assertThatExceptionOfType(ValidationException.class).
-                isThrownBy(() -> userStorage.createUser(tempUser));
+                isThrownBy(() -> userService.createUser(tempUser));
         assertThatExceptionOfType(ObjectNotFoundException.class).
                 isThrownBy(() -> userStorage.findUserById(userId));
     }
@@ -204,9 +204,9 @@ class FilmoRateApplicationTests {
                 .birthday(LocalDate.of(1946, 8, 20))
                 .build();
         assertThatExceptionOfType(ValidationException.class).
-                isThrownBy(() -> userStorage.createUser(tempUser));
+                isThrownBy(() -> userService.createUser(tempUser));
         assertThatExceptionOfType(ObjectNotFoundException.class).
-                isThrownBy(() -> userStorage.findUserById(2L));
+                isThrownBy(() -> userService.findUserById(2L));
     }
 
     @Test
@@ -217,8 +217,8 @@ class FilmoRateApplicationTests {
         withoutNameUser.setLogin("NewLogin");
         withoutNameUser.setName("");
         withoutNameUser.setEmail("without.name@mail.ru");
-        userStorage.createUser(withoutNameUser);
-        Optional<User> userOptional = userStorage.findUserById(userStorage.findAllUsers().size());
+        userService.createUser(withoutNameUser);
+        Optional<User> userOptional = userStorage.findUserById(userService.findAllUsers().size());
         assertThat(userOptional)
                 .isPresent()
                 .hasValueSatisfying(user -> assertThat(user)
@@ -237,14 +237,14 @@ class FilmoRateApplicationTests {
         user.setId(userId);
         user.setLogin("userLogin");
         user.setEmail("user@mail.ru");
-        userStorage.createUser(user);
+        userService.createUser(user);
 
         long userIdFriends = getCountUsers();
         User userFriends = getUser();
         userFriends.setId(userIdFriends);
         userFriends.setEmail("userFriends@mail.ru");
         userFriends.setLogin("userFriends");
-        userStorage.createUser(userFriends);
+        userService.createUser(userFriends);
         friendsDao.addFriend(userId, userIdFriends);
 
         Collection<User> users = friendsDao.getFriends(userId);
@@ -257,7 +257,7 @@ class FilmoRateApplicationTests {
         userFriends2.setId(userIdFriends);
         userFriends2.setEmail("userFriends2@mail.ru");
         userFriends2.setLogin("userFriends2");
-        userStorage.createUser(userFriends2);
+        userService.createUser(userFriends2);
         friendsDao.addFriend(userId, userIdFriends2);
         friendsDao.addFriend(userIdFriends, userIdFriends2);
         // подтверждаем дружбу между пользователями userIdFriends2 и userIdFriends
@@ -318,9 +318,7 @@ class FilmoRateApplicationTests {
     void getMpaByIdTest() {
         assertThat(mpaDao.getMpaById(2))
                 .isPresent()
-                .isEqualTo(Optional.of(new Mpa(2, "PG")))
-                .toString()
-                .contains("Для фильма с id = 2, рейтинг = PG");
+                .isEqualTo(Optional.of(new Mpa(2, "PG")));
     }
 
     @Test
@@ -335,7 +333,7 @@ class FilmoRateApplicationTests {
                 .duration(100)
                 .build();
         assertThatExceptionOfType(ValidationException.class)
-                .isThrownBy(() -> filmStorage.createFilm(film))
+                .isThrownBy(() -> filmService.createFilm(film))
                 .withMessage("Название фильма не может быть пустым");
     }
 
@@ -354,7 +352,7 @@ class FilmoRateApplicationTests {
                 .duration(100)
                 .build();
         assertThatExceptionOfType(ValidationException.class)
-                .isThrownBy(() -> filmStorage.createFilm(film))
+                .isThrownBy(() -> filmService.createFilm(film))
                 .withMessage("Превышена максимальная длина описания — 200 символов");
     }
 
@@ -370,7 +368,7 @@ class FilmoRateApplicationTests {
                 .duration(0)
                 .build();
         assertThatExceptionOfType(ValidationException.class)
-                .isThrownBy(() -> filmStorage.createFilm(film))
+                .isThrownBy(() -> filmService.createFilm(film))
                 .withMessage("Продолжительность фильма должна быть положительной");
     }
 
@@ -386,7 +384,7 @@ class FilmoRateApplicationTests {
                 .duration(0)
                 .build();
         assertThatExceptionOfType(ValidationException.class)
-                .isThrownBy(() -> filmStorage.createFilm(film))
+                .isThrownBy(() -> filmService.createFilm(film))
                 .withMessage("Дата релиза — раньше 28 декабря 1895 года");
     }
 

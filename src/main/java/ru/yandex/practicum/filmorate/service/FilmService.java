@@ -5,9 +5,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.FilmLikeDao;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.FilmLike;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.validation.FilmValidation;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -18,13 +18,15 @@ public class FilmService {
     private FilmStorage filmStorage;
     private UserStorage userStorage;
     private FilmLikeDao filmLikeDao;
+    private final FilmValidation filmValidation;
 
-    public FilmService(@Qualifier FilmStorage filmStorage,
-                       @Qualifier UserStorage userStorage,
-                       FilmLikeDao filmLikeDao) {
+    public FilmService(@Qualifier("FilmDbStorage") FilmStorage filmStorage,
+                       @Qualifier("UserDbStorage") UserStorage userStorage,
+                       FilmLikeDao filmLikeDao, FilmValidation filmValidation) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
         this.filmLikeDao = filmLikeDao;
+        this.filmValidation = filmValidation;
     }
 
     public List<Film> findAllFilms() {
@@ -32,6 +34,7 @@ public class FilmService {
     }
 
     public Film createFilm(Film film) {
+        filmValidation.validation(film);
         filmStorage.existFilm(film);
         return filmStorage.createFilm(film);
     }
@@ -43,6 +46,7 @@ public class FilmService {
 
 
     public Film updateFilm(Film film) {
+        filmValidation.validation(film);
         return filmStorage.updateFilm(film);
     }
 

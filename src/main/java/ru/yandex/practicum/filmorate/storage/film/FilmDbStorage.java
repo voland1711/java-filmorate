@@ -25,10 +25,9 @@ import java.util.*;
 
 @Slf4j
 @Component
-@Qualifier
+@Qualifier("FilmDbStorage")
 public class FilmDbStorage implements FilmStorage {
 
-    private final FilmValidation filmValidation;
     private final JdbcTemplate jdbcTemplate;
     private final MpaDao mpaDao;
     private final MpaService mpaService;
@@ -36,13 +35,11 @@ public class FilmDbStorage implements FilmStorage {
     private final FilmGenreDao filmGenreDao;
     private final FilmLikeDao filmLikeDao;
 
-    public FilmDbStorage(FilmValidation filmValidation,
-                         JdbcTemplate jdbcTemplate,
+    public FilmDbStorage(JdbcTemplate jdbcTemplate,
                          MpaDao mpaDao,
                          MpaService mpaService,
                          GenreDao genreDao,
                          FilmGenreDao filmGenreDao, FilmLikeDao filmLikeDao) {
-        this.filmValidation = filmValidation;
         this.jdbcTemplate = jdbcTemplate;
         this.mpaDao = mpaDao;
         this.mpaService = mpaService;
@@ -59,8 +56,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film createFilm(Film film) {
-        filmValidation.validation(film);
-        // второе условие на случай, если объект передан, но поля заполнены null;
+        // если объект передан, но поля заполнены null;
         if (film.getMpa().isPresent() && !film.getMpa().get().equals(new Mpa(null, null))) {
             film.setMpa(mpaDao.getMpaById(film.getMpa().get().getId()));
         }
@@ -88,7 +84,6 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film updateFilm(Film film) {
-        filmValidation.validation(film);
         existFilm(film.getId());
         if (film.getMpa().isPresent()) {
             film.setMpa(mpaDao.getMpaById(film.getMpa().get().getId()));

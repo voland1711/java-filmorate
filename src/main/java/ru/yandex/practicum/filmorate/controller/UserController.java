@@ -42,7 +42,7 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public User findUserById(@PathVariable Long userId) {
-        return userService.findUserById(userId).orElseThrow(() -> new ObjectNotFoundException("Пользователь не найден"));
+        return userService.findUserById(userId);
     }
 
     @GetMapping("/{userId}/friends")

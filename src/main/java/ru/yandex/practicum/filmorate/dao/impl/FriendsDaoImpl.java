@@ -22,9 +22,9 @@ import java.util.stream.Collectors;
 public class FriendsDaoImpl implements FriendsDao {
     private final JdbcTemplate jdbcTemplate;
     private final UserStorage userStorage;
-    LocalDate localDateEvent;
+    private LocalDate localDateEvent;
 
-    public FriendsDaoImpl(JdbcTemplate jdbcTemplate, @Qualifier UserStorage userStorage) {
+    public FriendsDaoImpl(JdbcTemplate jdbcTemplate, @Qualifier("UserDbStorage") UserStorage userStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.userStorage = userStorage;
     }

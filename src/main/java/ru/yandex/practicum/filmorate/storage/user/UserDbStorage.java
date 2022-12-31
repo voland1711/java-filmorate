@@ -10,27 +10,24 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.validation.UserValidation;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
 @Component
-@Qualifier
+@Qualifier("UserDbStorage")
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
-    private final UserValidation userValidation;
 
-    public UserDbStorage(JdbcTemplate jdbcTemplate, UserValidation userValidation) {
+    public UserDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        this.userValidation = userValidation;
+
     }
 
 
@@ -42,7 +39,6 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User createUser(User user) {
-        userValidation.userValidation(user);
         checkingExistEmail(user.getEmail());
         checkingExistLogin(user.getLogin());
         if (user.getName() == null || user.getName().isEmpty()) {
@@ -77,7 +73,6 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User updateUser(User user) {
-        userValidation.userValidation(user);
         existUser(user.getId());
         if (user.getName() == null || user.getName().isEmpty()) {
             user.setName(user.getLogin());
