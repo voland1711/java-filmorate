@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.GenreDao;
@@ -11,7 +10,6 @@ import java.util.Optional;
 
 @Service
 @Slf4j
-@Builder
 public class GenreService {
     private final GenreDao genreDao;
 

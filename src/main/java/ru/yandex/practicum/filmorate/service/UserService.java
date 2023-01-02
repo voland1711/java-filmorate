@@ -11,7 +11,6 @@ import ru.yandex.practicum.filmorate.validation.UserValidation;
 
 import java.util.*;
 
-
 @Service
 @Slf4j
 public class UserService {

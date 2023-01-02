@@ -7,11 +7,10 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.FilmLikeDao;
 import ru.yandex.practicum.filmorate.model.Film;
 
-
 @Slf4j
 @Component
 public class FilmLikeDaoImpl implements FilmLikeDao {
-    JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     public FilmLikeDaoImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;

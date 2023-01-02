@@ -14,8 +14,6 @@ import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.service.MpaService;
-import ru.yandex.practicum.filmorate.validation.FilmValidation;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -30,19 +28,17 @@ public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
     private final MpaDao mpaDao;
-    private final MpaService mpaService;
     private final GenreDao genreDao;
     private final FilmGenreDao filmGenreDao;
     private final FilmLikeDao filmLikeDao;
 
     public FilmDbStorage(JdbcTemplate jdbcTemplate,
                          MpaDao mpaDao,
-                         MpaService mpaService,
                          GenreDao genreDao,
-                         FilmGenreDao filmGenreDao, FilmLikeDao filmLikeDao) {
+                         FilmGenreDao filmGenreDao,
+                         FilmLikeDao filmLikeDao) {
         this.jdbcTemplate = jdbcTemplate;
         this.mpaDao = mpaDao;
-        this.mpaService = mpaService;
         this.genreDao = genreDao;
         this.filmGenreDao = filmGenreDao;
         this.filmLikeDao = filmLikeDao;
@@ -145,7 +141,7 @@ public class FilmDbStorage implements FilmStorage {
                 .releaseDate(rs.getDate("release_date").toLocalDate())
                 .duration(rs.getInt("duration"))
                 .rate(rate)
-                .mpa(mpaService.getMpaById(rs.getInt("film_mpa_id")))
+                .mpa(mpaDao.getMpaById(rs.getInt("film_mpa_id")))
                 .genres(Optional.ofNullable(tempListGenre))
                 .build();
     }
