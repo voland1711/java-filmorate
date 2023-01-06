@@ -30,7 +30,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> MethodArgumentNotValidException(final MethodArgumentNotValidException e) {
+    public Map<String, String> methodArgumentNotValidException(final MethodArgumentNotValidException e) {
         log.error(String.valueOf(e));
         return Map.of("error", e.getFieldError().getDefaultMessage());
     }

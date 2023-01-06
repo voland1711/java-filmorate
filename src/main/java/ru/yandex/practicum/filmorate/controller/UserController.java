@@ -1,8 +1,8 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -17,7 +17,7 @@ public class UserController {
 
     private final UserService userService;
 
-    @Autowired
+
     public UserController(UserService userService) {
         this.userService = userService;
     }
@@ -41,23 +41,23 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public User getUserById(@PathVariable Long userId) {
-        return userService.getUserById(userId);
+    public User findUserById(@PathVariable Long userId) {
+        return userService.findUserById(userId);
     }
 
     @GetMapping("/{userId}/friends")
-    public List<User> getFriends(@PathVariable Long userId) {
+    public Collection<User> getFriends(@PathVariable Long userId) {
         return userService.getFriends(userId);
     }
 
     @PutMapping("/{userId}/friends/{userFriendId}")
-    public User addFriend(@PathVariable Long userId, @PathVariable Long userFriendId) {
-        return userService.addFriend(userId, userFriendId);
+    public void addFriend(@PathVariable Long userId, @PathVariable Long userFriendId) {
+        userService.addFriend(userId, userFriendId);
     }
 
     @DeleteMapping("/{userId}/friends/{userFriendId}")
-    public User deleteFriend(@PathVariable Long userId, @PathVariable Long userFriendId) {
-        return userService.deleteFriend(userId, userFriendId);
+    public void deleteFriend(@PathVariable Long userId, @PathVariable Long userFriendId) {
+        userService.deleteFriend(userId, userFriendId);
     }
 
     @GetMapping("/{userId}/friends/common/{otherId}")
